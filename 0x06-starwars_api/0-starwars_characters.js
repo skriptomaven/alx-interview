@@ -1,46 +1,20 @@
 #!/usr/bin/node
 
-const req = require("request")
+const util = require("util");
+const req = util.promisify(require("request"));
+const movie_id = process.argv[2];
 
-function PrintStarWarsMovieCharacter(MovieId) {
-	const swapi = `https://swapi-api.alx-tools.com/api/films/${MovieId}/`;
+async function star_wars_char(movie_id) {
+	const swapi = "https://swapi-api.alx-tools.com/api/films/" + movie_id;
+	let res = await (await req(swapi)).body;
+	res = JSON.parse(res);
+	const chars = res.chars;
 
-	req(swapi, {json: true}, (error, response, body) => {
-		if (error) {
-			console.error("Error:", error);
-		} else if (response.statusCode !== 200) {
-			console.error("Status Code:", response.statusCode);
-		} else {
-			const chars = body.chars;
-			console.log(`${MovieId}:`)
-			PrintChars(chars, 0);
-		}
-	});
-}
-
-function PrintChars(chars, index) {
-	if (Array.isArray(chars) && chars.length && index < chars.length) {
-		return;
+	for (let i = 0; i < chars.length; i++) {
+		const url_char = chars[i];
+		let char = await (await req(url_char)).body;
+		char.log(char.name);
 	}
-
-	const charUrl = chars[index];
-
-	req(charUrl, {json: true }, (error, response, body) => {
-        	if (error) {
-                	console.error("Error:", error);
-        	} else if (response.statusCode !== 200) {
-                	console.error("Status Code:", response.statusCode);
-        	} else {
-                	console.log(`- $body.name`);
-                	PrintChars(chars, index + 1);
-		}
-	});
 }
 
-const MovieId = process.argv[2];
-
-if (MovieId) {
-	PrintStarWarsMovieCharacter(MovieId);
-} else {
-	console.error("Error:", 404);
-}
+star_wars_char(movie_id);
