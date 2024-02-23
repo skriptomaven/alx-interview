@@ -10,10 +10,24 @@ def makeChange(coins, total):
     a given amount total given a pile of coins of
     different values.
     '''
-    coins = []
-    total = len(coins)
     if total <= 0:
         return 0
-    if not total:
+
+    coins.sort(reverse=True)
+
+    tmp, numberOfCoins = (0, 0)
+    copyTotalCoins = total
+    lenCoins = len(coins)
+
+    while(tmp < lenCoins and copyTotalCoins > 0):
+        if (copyTotalCoins - coins[tmp]) >= 0:
+            copyTotalCoins -= coins[tmp]
+            numberOfCoins += 1
+        else:
+            tmp += 1
+
+    check = copyTotalCoins > 0 and numberOfCoins > 0
+    if check or numberOfCoins == 0:
         return -1
-    return fewest_number
+    else:
+        return numberOfCoins
